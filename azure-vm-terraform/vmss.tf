@@ -6,6 +6,13 @@ resource "azurerm_linux_virtual_machine_scale_set" "app_vmss" {
   instances           = 2
   admin_username      = "azureuser"
   zones               = ["1", "2"]
+  custom_data = base64encode(templatefile("${path.module}/../cloud-init.tpl", {
+    storage_account_name = azurerm_storage_account.diag_storage.name
+    mysql_host          = azurerm_mysql_flexible_server.mysql_server.fqdn
+    mysql_user          = azurerm_mysql_flexible_server.mysql_server.administrator_login
+    mysql_password      = azurerm_mysql_flexible_server.mysql_server.administrator_password
+    mysql_database      = "webapp"
+  }))
 
   identity {
     type = "SystemAssigned"
@@ -13,8 +20,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "app_vmss" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal" # change to latest
-    sku       = "20_04-lts-gen2"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
     version   = "latest"
   }
 
