@@ -18,7 +18,6 @@ locals {
 
 variable "alert_email" {
   type = string
-  default = "cindrakdanis0@gmail.com"
   description = "Email address to send alerts to."
 }
 
@@ -42,8 +41,18 @@ variable "db_size" {
 
 variable "subscription_id" {
   type        = string
-  default     = "680182c5-659b-43f7-b6da-80b3abe9fdea"
   description = "Azure Subscription ID"
+}
+
+variable "db_login" {
+  type        = string
+  description = "Administrator login for MySQL flexible server"
+}
+
+variable "ssh_public_key_path" {
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
+  description = "Path to SSH public key file"
 }
 
 locals {
@@ -59,7 +68,7 @@ locals {
     "large"  = "GP_Standard_D4ads_v5"
   }
 
-  public_key_ssh = file("~/.ssh/id_rsa.pub")
+  public_key_ssh = file(var.ssh_public_key_path)
   
   app_vm_size = local.vm_size_map[var.vm_size]
   db_sku_name = local.db_size_map[var.db_size]

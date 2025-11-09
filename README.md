@@ -65,19 +65,96 @@ azure-vm-terraform/
 
 ## Configuration Variables
 
-### Implemented Variables (`variables.tf`)
-- **resource_group_location**: Default `"switzerlandnorth"`
-- **prefix**: Default `"win-vm-iis"` (used in resource naming with random pet suffix)
-- **app_vm_size**: Default `"Standard_B2s"` (VM size for VMSS instances)
+### User-Friendly Variables (`variables.tf`)
 
-### Hardcoded Values
-- **VMSS instances**: 2 (minimum), 5 (maximum)
+The infrastructure supports simplified configuration using friendly names instead of technical Azure identifiers:
+
+#### Region Selection
+- **Variable**: `region`
+- **Default**: `"Swiss"`
+- **Options**: 
+  - `"Swiss"` → switzerlandnorth
+  - `"EU-West"` → westeurope
+  - `"EU-North"` → northeurope
+  - `"US-East"` → eastus
+  - `"US-West"` → westus
+
+#### VM Size Selection
+- **Variable**: `vm_size`
+- **Default**: `"small"`
+- **Options**:
+  - `"small"` → Standard_B2s (2 vCPU, 4 GB RAM)
+  - `"medium"` → Standard_B4ms (4 vCPU, 16 GB RAM)
+  - `"large"` → Standard_D4s_v3 (4 vCPU, 16 GB RAM)
+
+#### Database Size Selection
+- **Variable**: `db_size`
+- **Default**: `"medium"`
+- **Options**:
+  - `"small"` → B_Standard_B1ms (Burstable, 1 vCore, 2 GB RAM)
+  - `"medium"` → GP_Standard_D2ads_v5 (General Purpose, 2 vCore, 8 GB RAM)
+  - `"large"` → GP_Standard_D4ads_v5 (General Purpose, 4 vCore, 16 GB RAM)
+
+#### Other Required Variables
+- **`subscription_id`**: Azure subscription ID (**REQUIRED** - no default)
+- **`alert_email`**: Email address for monitoring alerts (**REQUIRED** - no default)
+
+#### Other Optional Variables
+- **`prefix`**: Resource name prefix (default: `"win-vm-iis"`)
+- **`ssh_public_key_path`**: Path to SSH public key (default: `"~/.ssh/id_rsa.pub"`)
+
+### Example Configurations
+
+**Using terraform.tfvars file (recommended):**
+```bash
+# Copy the example file
+cp terraform.tfvars.example terraform.tfvars
+
+# Edit terraform.tfvars with your values
+# subscription_id = "your-subscription-id"
+# alert_email = "your-email@example.com"
+
+terraform apply
+```
+
+**Minimal cost development setup:**
+```bash
+terraform apply \
+  -var="subscription_id=YOUR_SUBSCRIPTION_ID" \
+  -var="alert_email=your-email@example.com" \
+  -var="region=Swiss" \
+  -var="vm_size=small" \
+  -var="db_size=small"
+```
+
+**Production setup in EU:**
+```bash
+terraform apply \
+  -var="subscription_id=YOUR_SUBSCRIPTION_ID" \
+  -var="alert_email=admin@company.com" \
+  -var="region=EU-West" \
+  -var="vm_size=medium" \
+  -var="db_size=large"
+```
+
+**High-performance US deployment:**
+```bash
+terraform apply \
+  -var="subscription_id=YOUR_SUBSCRIPTION_ID" \
+  -var="alert_email=admin@company.com" \
+  -var="region=US-East" \
+  -var="vm_size=large" \
+  -var="db_size=large"
+```
+
+### Infrastructure Constants
+These values are fixed in the Terraform configuration:
+- **VMSS instances**: Minimum 2, maximum 5 (default 2)
 - **Availability zones**: [1, 2]
 - **VNet CIDR**: 10.0.0.0/16
 - **App Gateway capacity**: 2
 - **MySQL HA mode**: ZoneRedundant
 - **Admin username**: `azureuser`
-- **Subscription ID**: Hardcoded in providers.tf
 
 ## Session Persistence Strategy
 
@@ -90,20 +167,23 @@ azure-vm-terraform/
 ## Security Implementation
 
 ### Secrets Management
-- **No secrets in code**: Database password generated via `random_password` resource
+- **No secrets in code**: All sensitive values must be provided via terraform.tfvars or command-line variables
+- **Subscription ID**: Must be provided by user (no default value in code)
+- **Database password**: Generated automatically via `random_password` resource
 - **Key Vault storage**: Secrets stored as `dbPassword` in Azure Key Vault
 - **RBAC authorization**: Key Vault uses role-based access control
   - Terraform/admin: `Key Vault Administrator` role
   - VMSS instances: `Key Vault Secrets User` role (read-only)
 - **Managed Identity**: VMSS has system-assigned identity for passwordless Key Vault access
 - **Soft delete**: 7-day retention for deleted secrets
+- **Git ignored**: terraform.tfvars and state files are excluded from version control
 
 ### Network Security
 - **NSG Rules**:
   - App Subnet: Allow HTTP (80) from App Gateway subnet (10.0.0.0/24)
   - DB Subnet: Allow MySQL (3306) from App Subnet (10.0.1.0/24)
 - **Private Database**: MySQL accessible only via private endpoint in VNet
-- **SSH Access**: Public key authentication only (requires ~/.ssh/id_rsa.pub file)
+- **SSH Access**: Public key authentication only (configurable path via `ssh_public_key_path` variable)
 
 ### High Availability Features
 - **Multi-zone deployment**: VMSS and App Gateway across zones 1 & 2
@@ -125,13 +205,21 @@ azure-vm-terraform/
 ### Prerequisites
 1. **Azure CLI**: Authenticated with `az login`
 2. **Terraform**: Version >=1.0
-3. **SSH Key**: Public key at `~/.ssh/id_rsa.pub`
-4. **Azure Subscription**: ID configured in `providers.tf`
+3. **SSH Key**: Public key (default location: `~/.ssh/id_rsa.pub`, or specify custom path)
+4. **Azure Subscription**: ID required for deployment (get with `az account show --query id -o tsv`)
+5. **Configuration File**: Copy `terraform.tfvars.example` to `terraform.tfvars` and fill in your values
 
 ### Deploy Infrastructure
 
 ```bash
 cd azure-vm-terraform
+
+# Configure your variables
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars and set:
+# - subscription_id (REQUIRED)
+# - alert_email (REQUIRED)
+# - Other optional variables as needed
 
 # Initialize Terraform
 terraform init
@@ -170,14 +258,32 @@ VMSS instances are in a private subnet behind App Gateway. To access them:
 terraform destroy
 ```
 
-## Known Limitations & TODOs
+## Testing
 
-### Not Yet Implemented
-- **Bastion/Jumpbox**: No SSH access to VMSS instances (private subnet only)
-- **Application deployment**: No cloud-init script to deploy NestJS application
-- **Monitoring & Alerts**: No Azure Monitor alerts for health/CPU/HTTP errors
-- **Region aliases**: No mapping for simplified region names (EU/Paris/US)
-- **Size aliases**: No mapping for small/medium/large VM sizes
-- **Remote state**: No backend configuration for shared Terraform state
-- **Environment separation**: No dev/prod environment structure
+### High Availability Test
+```bash
+./test-ha.sh
+```
+Tests server failure recovery by deleting a VMSS instance and monitoring automatic recovery.
+
+### Autoscaling Test
+```bash
+./test-scalability.sh
+```
+Generates load to trigger CPU-based autoscaling (requires apache2-utils for `ab` command).
+
+## Known Limitations & Future Enhancements
+
+### Limitations
+- **Bastion Access**: No direct SSH access to VMSS instances (private subnet only). Use Azure Bastion or temporary NSG rules for troubleshooting.
+- **Remote State**: No backend configuration for shared Terraform state (uses local state file)
+- **Environment Separation**: No dev/prod environment structure
+
+### Potential Enhancements
+- Multi-region deployment with global load balancing
+- HTTPS/TLS with custom domain and Azure Front Door
+- Log Analytics workspace for centralized logging
+- Application Insights for APM monitoring
+- Azure DevOps pipeline for CI/CD
+- Chaos engineering tests for resilience validation
 - **CI/CD**: No automated testing or deployment pipeline

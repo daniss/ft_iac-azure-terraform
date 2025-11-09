@@ -3,7 +3,7 @@ resource "azurerm_mysql_flexible_server" "mysql_server" {
   name                         = "${random_pet.prefix.id}-mysql-server"
   location                     = azurerm_resource_group.rg.location
   resource_group_name          = azurerm_resource_group.rg.name
-  administrator_login          = "mysqladminun"
+  administrator_login          = var.db_login
   administrator_password       = random_password.password.result
   version                      = "8.0.21"
   sku_name                     = local.db_sku_name
