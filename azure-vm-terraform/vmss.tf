@@ -2,7 +2,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "app_vmss" {
   name                = "${random_pet.prefix.id}-vmss"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku                 = var.app_vm_size
+  sku                 = local.app_vm_size
   instances           = 2
   admin_username      = "azureuser"
   zones               = ["1", "2"]

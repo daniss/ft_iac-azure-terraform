@@ -62,3 +62,31 @@ resource "azurerm_application_gateway" "app_gw" {
     azurerm_public_ip.app_gw_public_ip
   ]
 }
+
+resource "azurerm_monitor_action_group" "app_gw_action_group" {
+  name                = "${random_pet.prefix.id}-app-gw-action-group"
+  resource_group_name = azurerm_resource_group.rg.name
+  short_name          = "appGwAG"
+  email_receiver {
+      name                   = "sendToAdmin"
+      email_address          = var.alert_email
+      use_common_alert_schema = true
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "app_gw_health_alert" {
+  name                = "app-gw-health-alert"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes              = [azurerm_application_gateway.app_gw.id]
+  criteria {
+    metric_namespace = "Microsoft.Network/applicationGateways"
+    metric_name      = "UnhealthyHostCount"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 0
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.app_gw_action_group.id
+  }
+}

@@ -6,7 +6,7 @@ resource "azurerm_mysql_flexible_server" "mysql_server" {
   administrator_login    = "mysqladminun"
   administrator_password = random_password.password.result
   version                = "8.0.21"
-  sku_name               = "GP_Standard_D2ads_v5"
+  sku_name               = local.db_sku_name
   high_availability {
     mode = "ZoneRedundant"
   }
