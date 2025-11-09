@@ -47,7 +47,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "app_vmss" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = local.public_key_ssh
   }
 
   depends_on = [
@@ -122,4 +122,423 @@ resource "azurerm_monitor_autoscale_setting" "app_vmss_autoscale" {
     }
   }
   
+}
+
+resource "azurerm_portal_dashboard" "main" {
+  name                = "${random_pet.prefix.id}-dashboard"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  
+  dashboard_properties = jsonencode({
+    lenses = {
+      "0" = {
+        order = 0
+        parts = {
+          "0" = {
+            position = {
+              x        = 0
+              y        = 0
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_application_gateway.app_gw.id
+                          }
+                          name = "Throughput"
+                          aggregationType = 4
+                          namespace = "microsoft.network/applicationgateways"
+                          metricVisualization = {
+                            displayName = "Throughput"
+                          }
+                        }
+                      ]
+                      title = "Application Gateway - Throughput"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "1" = {
+            position = {
+              x        = 6
+              y        = 0
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_application_gateway.app_gw.id
+                          }
+                          name = "UnhealthyHostCount"
+                          aggregationType = 4
+                          namespace = "microsoft.network/applicationgateways"
+                          metricVisualization = {
+                            displayName = "Unhealthy Host Count"
+                          }
+                        }
+                      ]
+                      title = "Application Gateway - Unhealthy Hosts"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "2" = {
+            position = {
+              x        = 0
+              y        = 4
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_linux_virtual_machine_scale_set.app_vmss.id
+                          }
+                          name = "Percentage CPU"
+                          aggregationType = 4
+                          namespace = "microsoft.compute/virtualmachinescalesets"
+                          metricVisualization = {
+                            displayName = "Percentage CPU"
+                          }
+                        }
+                      ]
+                      title = "VMSS - CPU Usage"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "3" = {
+            position = {
+              x        = 6
+              y        = 4
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_application_gateway.app_gw.id
+                          }
+                          name = "ResponseStatus"
+                          aggregationType = 1
+                          namespace = "microsoft.network/applicationgateways"
+                          metricVisualization = {
+                            displayName = "Response Status"
+                          }
+                        }
+                      ]
+                      title = "Application Gateway - Response Status"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "4" = {
+            position = {
+              x        = 0
+              y        = 8
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_mysql_flexible_server.mysql_server.id
+                          }
+                          name = "cpu_percent"
+                          aggregationType = 4
+                          namespace = "microsoft.dbformysql/flexibleservers"
+                          metricVisualization = {
+                            displayName = "CPU Percent"
+                          }
+                        }
+                      ]
+                      title = "MySQL - CPU Usage"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "5" = {
+            position = {
+              x        = 6
+              y        = 8
+              colSpan  = 6
+              rowSpan  = 4
+            }
+            metadata = {
+              inputs = [
+                {
+                  name = "options"
+                  isOptional = true
+                },
+                {
+                  name = "sharedTimeRange"
+                  isOptional = true
+                }
+              ]
+              type = "Extension/HubsExtension/PartType/MonitorChartPart"
+              settings = {
+                content = {
+                  options = {
+                    chart = {
+                      metrics = [
+                        {
+                          resourceMetadata = {
+                            id = azurerm_mysql_flexible_server.mysql_server.id
+                          }
+                          name = "active_connections"
+                          aggregationType = 4
+                          namespace = "microsoft.dbformysql/flexibleservers"
+                          metricVisualization = {
+                            displayName = "Active Connections"
+                          }
+                        }
+                      ]
+                      title = "MySQL - Active Connections"
+                      titleKind = 2
+                      visualization = {
+                        chartType = 2
+                        legendVisualization = {
+                          isVisible = true
+                          position = 2
+                          hideSubtitle = false
+                        }
+                        axisVisualization = {
+                          x = {
+                            isVisible = true
+                            axisType = 2
+                          }
+                          y = {
+                            isVisible = true
+                            axisType = 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    metadata = {
+      model = {
+        timeRange = {
+          value = {
+            relative = {
+              duration = 24
+              timeUnit = 1
+            }
+          }
+          type = "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  })
+}
+
+resource "azurerm_monitor_metric_alert" "vmss_cpu_alert" {
+  name                = "vmss-high-cpu-alert"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes              = [azurerm_linux_virtual_machine_scale_set.app_vmss.id]
+  
+  criteria {
+    metric_namespace = "Microsoft.Compute/virtualMachineScaleSets"
+    metric_name      = "Percentage CPU"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 80
+  }
+  
+  action {
+    action_group_id = azurerm_monitor_action_group.app_gw_action_group.id
+  }
 }

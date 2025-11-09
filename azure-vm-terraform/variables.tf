@@ -40,6 +40,12 @@ variable "db_size" {
   description = "Database size: small, medium, or large"
 }
 
+variable "subscription_id" {
+  type        = string
+  default     = "680182c5-659b-43f7-b6da-80b3abe9fdea"
+  description = "Azure Subscription ID"
+}
+
 locals {
   vm_size_map = {
     "small"  = "Standard_B2s"
@@ -52,6 +58,8 @@ locals {
     "medium" = "GP_Standard_D2ads_v5"
     "large"  = "GP_Standard_D4ads_v5"
   }
+
+  public_key_ssh = file("~/.ssh/id_rsa.pub")
   
   app_vm_size = local.vm_size_map[var.vm_size]
   db_sku_name = local.db_size_map[var.db_size]

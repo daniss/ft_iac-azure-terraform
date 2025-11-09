@@ -1,20 +1,21 @@
 # Create MySQL flexible server using the key vault secret
 resource "azurerm_mysql_flexible_server" "mysql_server" {
-  name                   = "${random_pet.prefix.id}-mysql-server"
-  location               = azurerm_resource_group.rg.location
-  resource_group_name    = azurerm_resource_group.rg.name
-  administrator_login    = "mysqladminun"
-  administrator_password = random_password.password.result
-  version                = "8.0.21"
-  sku_name               = local.db_sku_name
+  name                         = "${random_pet.prefix.id}-mysql-server"
+  location                     = azurerm_resource_group.rg.location
+  resource_group_name          = azurerm_resource_group.rg.name
+  administrator_login          = "mysqladminun"
+  administrator_password       = random_password.password.result
+  version                      = "8.0.21"
+  sku_name                     = local.db_sku_name
   high_availability {
     mode = "ZoneRedundant"
   }
 
-  backup_retention_days  = 7
+  backup_retention_days        = 7
+  geo_redundant_backup_enabled = true
 
-  delegated_subnet_id    = azurerm_subnet.db_subnet.id
-  private_dns_zone_id    = azurerm_private_dns_zone.mysql_dns_zone.id
+  delegated_subnet_id          = azurerm_subnet.db_subnet.id
+  private_dns_zone_id          = azurerm_private_dns_zone.mysql_dns_zone.id
 
   depends_on = [
     azurerm_subnet.db_subnet,
