@@ -81,11 +81,11 @@ az vmss delete-instances \
     --instance-ids "$instance_id" \
     --no-wait
 
-echo "Waiting 10 seconds for instance deletion to propagate..."
+echo "Waiting 10 seconds for instance deletion to propagate"
 sleep 10
 
 echo ""
-echo "Testing application availability during instance failure..."
+echo "Testing application availability during instance failure"
 for i in {1..5}; do
     echo -n "  Attempt $i/5: "
     if check_app_availability; then
@@ -99,11 +99,11 @@ echo "=========================================="
 echo "Phase 3: Recovery Monitoring"
 echo "=========================================="
 
-echo "Monitoring recovery (this may take 2-5 minutes)..."
+echo "Monitoring recovery"
 echo ""
 
 recovery_time=0
-max_wait=600 # 10 minutes
+max_wait=600
 
 while [ $recovery_time -lt $max_wait ]; do
     current_count=$(get_instance_count)
