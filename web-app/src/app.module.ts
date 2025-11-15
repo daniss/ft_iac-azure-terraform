@@ -31,6 +31,9 @@ import { appModuleBootstrap } from './app.hooks';
         database: configService.get('MYSQL_DATABASE'),
         entities: [Todo, User],
         synchronize: (configService.get('NODE_ENV') !== 'production'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
       })
     }),
     UsersModule,

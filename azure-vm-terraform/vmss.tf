@@ -10,8 +10,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "app_vmss" {
     storage_account_name = azurerm_storage_account.diag_storage.name
     mysql_host          = azurerm_mysql_flexible_server.mysql_server.fqdn
     mysql_user          = azurerm_mysql_flexible_server.mysql_server.administrator_login
-    mysql_password      = azurerm_mysql_flexible_server.mysql_server.administrator_password
     mysql_database      = "webapp"
+    kv_name             = azurerm_key_vault.kv.name
+    kv_secret_name      = azurerm_key_vault_secret.db_password.name
   }))
 
   identity {

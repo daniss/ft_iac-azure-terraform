@@ -16,6 +16,10 @@ write_files:
       exec > /var/log/deploy-app.log 2>&1
       
       echo "Starting deployment"
+
+      ACCESS_TOKEN=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net" | jq -r '.access_token')
+      MYSQL_PASSWORD=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "https://${kv_name}.vault.azure.net/secrets/${kv_secret_name}?api-version=7.4" | jq -r '.value')
+      echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" > /etc/webapp.env
       
       STORAGE_ACCOUNT="${storage_account_name}"
       
@@ -48,7 +52,7 @@ write_files:
       Environment="MYSQL_HOST=${mysql_host}"
       Environment="MYSQL_PORT=3306"
       Environment="MYSQL_USER=${mysql_user}"
-      Environment="MYSQL_PASSWORD=${mysql_password}"
+      EnvironmentFile=/etc/webapp.env
       Environment="MYSQL_DATABASE=${mysql_database}"
       ExecStart=/usr/bin/node dist/main
       Restart=always

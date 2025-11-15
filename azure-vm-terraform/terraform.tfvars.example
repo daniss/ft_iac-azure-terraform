@@ -1,9 +1,4 @@
-# Azure Configuration
-# REQUIRED: Copy this file to terraform.tfvars and fill in your actual values
-# The terraform.tfvars file will be automatically ignored by git
-
 # Azure Subscription ID (REQUIRED)
-# Find it with: az account show --query id -o tsv
 subscription_id = "YOUR_SUBSCRIPTION_ID_HERE"
 
 # Email for monitoring alerts (REQUIRED)
@@ -12,9 +7,6 @@ alert_email = "your-email@example.com"
 # Region Configuration (OPTIONAL)
 # Options: Swiss, EU-West, EU-North, US-East, US-West
 # region = "Swiss"
-
-# Resource Prefix (OPTIONAL)
-# prefix = "win-vm-iis"
 
 # VM Size (OPTIONAL)
 # Options: small, medium, large
@@ -28,5 +20,5 @@ alert_email = "your-email@example.com"
 # Default: ~/.ssh/id_rsa.pub
 # ssh_public_key_path = "~/.ssh/id_rsa.pub"
 
-# Database Administrator Login (OPTIONAL)
-# db_login = "mysqladminun"
+# Database Administrator Login (REQUIRED)
+db_login = "mysqladminun"
