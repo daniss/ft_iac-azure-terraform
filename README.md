@@ -272,6 +272,13 @@ Tests server failure recovery by deleting a VMSS instance and monitoring automat
 ```
 Generates load to trigger CPU-based autoscaling (requires apache2-utils for `ab` command).
 
+### Chaos Engineering Drill
+```bash
+chmod +x chaos-monkey.sh
+./chaos-monkey.sh 3 180
+```
+Deletes a random VMSS instance, waits for recovery, logs the duration, then repeats (here: 3 iterations with 3-minute pauses). Uses the same HA logic as `test-ha.sh` to validate recurring failure scenarios.
+
 ## Known Limitations & Future Enhancements
 
 ### Limitations

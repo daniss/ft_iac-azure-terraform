@@ -1,5 +1,6 @@
 #!/bin/bash
-set -euo pipefail
+
+set -e
 
 ITERATIONS=${1:-1}
 PAUSE_SECONDS=${2:-300}

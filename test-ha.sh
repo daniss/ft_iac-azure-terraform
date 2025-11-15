@@ -2,15 +2,10 @@
 
 set -e
 
-echo "=========================================="
-echo "High Availability Test"
-echo "=========================================="
-echo ""
-
-RESOURCE_GROUP="rg-iac1-win-vm-iis-moth"
-VMSS_NAME="win-vm-iis-moth-vmss"
-APP_GATEWAY_NAME="win-vm-iis-moth-app-gw"
-APP_URL="http://20.199.152.167"
+RESOURCE_GROUP="rg-iac1-win-vm-iis-grouse"
+VMSS_NAME="win-vm-iis-grouse-vmss"
+APP_GATEWAY_NAME="win-vm-iis-grouse-app-gw"
+APP_URL="http://20.199.152.98"
 
 echo "Test Configuration:"
 echo "   Resource Group: $RESOURCE_GROUP"
@@ -136,20 +131,12 @@ final_healthy=$(get_healthy_backends)
 echo "Final VMSS instances: $final_count (initial: $initial_count)"
 
 if check_app_availability; then
-    echo ""
-    echo "=========================================="
-    echo "HIGH AVAILABILITY TEST PASSED"
-    echo "=========================================="
     echo "Summary:"
     echo "  • Application remained available during instance failure"
     echo "  • VMSS automatically recovered to minimum instance count"
     echo "  • Recovery time: ${recovery_time}s"
     exit 0
 else
-    echo ""
-    echo "=========================================="
-    echo "HIGH AVAILABILITY TEST FAILED"
-    echo "=========================================="
     echo "Application is not responding after recovery"
     exit 1
 fi
