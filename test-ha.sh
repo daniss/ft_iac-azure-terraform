@@ -5,7 +5,7 @@ set -e
 RESOURCE_GROUP="rg-iac1-win-vm-iis-grouse"
 VMSS_NAME="win-vm-iis-grouse-vmss"
 APP_GATEWAY_NAME="win-vm-iis-grouse-app-gw"
-APP_URL="http://20.199.152.98"
+APP_URL=""
 
 echo "Test Configuration:"
 echo "   Resource Group: $RESOURCE_GROUP"
