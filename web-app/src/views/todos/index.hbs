@@ -11,6 +11,11 @@
 
 <body>
   <div class="container-fluid">
+    {{!-- Server info banner --}}
+    <div class="alert alert-info text-center" role="alert">
+      <strong>Server:</strong> {{serverHostname}} | <strong>IP:</strong> {{serverIP}}
+    </div>
+
     <div class="row">
       <h1>{{username}} todos list</h1>
       {{#each todos as |todo|}}

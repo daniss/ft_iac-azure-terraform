@@ -5,6 +5,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import Logger from '../libs/logger';
 import { Response } from 'express';
 import { AppSessionBaseType, AppSessionLoggedType } from 'src/libs/data-structures/app-session.type';
+import * as os from 'os';
 
 @Controller('todos')
 export class TodosController {
@@ -24,9 +25,24 @@ export class TodosController {
     if (session.user.id !== +userId)
       throw new UnauthorizedException();
 
+    const networkInterfaces = os.networkInterfaces();
+    let serverIP = 'unknown';
+    
+    for (const name of Object.keys(networkInterfaces)) {
+      for (const iface of networkInterfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          serverIP = iface.address;
+          break;
+        }
+      }
+      if (serverIP !== 'unknown') break;
+    }
+
     return {
       username: session.user.username,
       todos: await this.todosService.findAllByUserId(+userId),
+      serverHostname: os.hostname(),
+      serverIP: serverIP,
     };
   }
 
